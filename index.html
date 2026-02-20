@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Berry Patisserie - Özel Sipariş</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .ingredient-btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .ingredient-btn.active {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+        .drink-btn.active {
+            background-color: #1a1a1a;
+            color: white;
+        }
+        .price-tag {
+            transition: all 0.3s ease;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-slide-in {
+            animation: slideIn 0.6s ease-out forwards;
+        }
+        .payment-btn.active {
+            background-color: #1a1a1a;
+            color: white;
+            border-color: #1a1a1a;
+        }
+        .payment-btn.coming-soon {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .qty-btn {
+            transition: all 0.2s ease;
+        }
+        .qty-btn:hover {
+            transform: scale(1.1);
+        }
+        .delete-btn {
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        .order-item:hover .delete-btn {
+            opacity: 1;
+        }
+        .add-btn {
+            transition: all 0.2s ease;
+        }
+        .add-btn:hover {
+            transform: scale(1.05);
+        }
+        .waffle-instance {
+            transition: all 0.3s ease;
+        }
+        .waffle-instance:hover {
+            background-color: rgba(255,255,255,0.05);
+        }
+        .ingredient-tag {
+            transition: all 0.2s ease;
+        }
+        .ingredient-tag:hover {
+            background-color: rgba(255,255,255,0.2);
+        }
+        .remove-ing-btn {
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        .ingredient-tag:hover .remove-ing-btn {
+            opacity: 1;
+        }
+        .add-ing-btn {
+            transition: all 0.2s ease;
+        }
+        .add-ing-btn:hover {
+            background-color: rgba(255,255,255,0.3);
+        }
+        .sync-indicator {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 antialiased">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full bg-white/80 backdrop-blur-md border-b border-gray-100 z-50">
+        <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center">
+                    <span class="text-white font-bold text-sm">B</span>
+                </div>
+                <span class="font-semibold text-lg tracking-tight">BERRY PATISSERIE</span>
+            </div>
+            <div class="text-sm text-gray-500">Özel Sipariş Sistemi</div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-24 pb-32 max-w-6xl mx-auto px-6">
+        
+        <!-- Hero Section -->
+        <div class="grid md:grid-cols-2 gap-12 items-center mb-20 animate-slide-in">
+            <div class="space-y-6">
+                <div class="inline-block px-3 py-1 bg-gray-100 rounded-full text-xs font-medium text-gray-600 tracking-wide">
+                    TEK ÜRÜN, SONSUZ KOMBİNASYON
+                </div>
+                <h1 class="text-5xl md:text-6xl font-bold leading-tight text-gray-900">
+                    Özel Waffle<br>
+                    <span class="text-gray-400">Senin Tarzın</span>
+                </h1>
+                <p class="text-gray-600 text-lg leading-relaxed max-w-md">
+                    Taze hamur, çıtır dokusu ve seçtiğin malzemelerle hazırlanan özel waffle deneyimi. 
+                    İstediğin kombinasyonu oluştur, anında sipariş ver.
+                </p>
+                <div class="flex items-center gap-4">
+                    <div class="text-3xl font-bold text-gray-900">350 TL</div>
+                    <div class="text-sm text-gray-500">Başlangıç Fiyatı</div>
+                </div>
+            </div>
+            <div class="relative">
+                <div class="aspect-square bg-gray-100 rounded-3xl overflow-hidden relative">
+                    <img src="https://images.unsplash.com/photo-1562376552-0d160a2f238d?w=800&auto=format&fit=crop&q=80" 
+                         alt="Waffle" 
+                         class="w-full h-full object-cover hover:scale-105 transition-transform duration-700">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                </div>
+                <!-- Floating Elements -->
+                <div class="absolute -bottom-6 -right-6 bg-white p-4 rounded-2xl shadow-xl border border-gray-100">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-green-600">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        </div>
+                        <div>
+                            <div class="text-xs text-gray-500">Tazelik</div>
+                            <div class="font-semibold text-sm">Sıcak Servis</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Configuration -->
+        <div class="grid lg:grid-cols-3 gap-8">
+            
+            <!-- Left Column: Ingredients -->
+            <div class="lg:col-span-2 space-y-8">
+                
+                <!-- Malzemeler Section -->
+                <section class="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold">Malzemeler</h2>
+                        <span class="text-sm text-gray-500 flex items-center gap-2">
+                            <span class="w-2 h-2 bg-green-500 rounded-full sync-indicator"></span>
+                            Anlık Güncelleme
+                        </span>
+                    </div>
+
+                    <!-- Ücretsiz Malzemeler -->
+                    <div class="mb-8">
+                        <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Ücretsiz</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                            <button onclick="toggleIngredient(this, 'Çikolata', 0)" data-ingredient="Çikolata"
+                                    class="ingredient-btn active group relative p-4 rounded-2xl border-2 border-gray-900 bg-gray-50 hover:bg-gray-100 text-left">
+                                <div class="font-medium text-gray-900">Çikolata</div>
+                                <div class="text-xs text-gray-500 mt-1">Sıcak erimiş</div>
+                                <div class="absolute top-2 right-2 w-6 h-6 bg-gray-900 rounded-full flex items-center justify-center opacity-100 check-icon">
+                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                            </button>
+
+                            <button onclick="toggleIngredient(this, 'Beyaz Çikolata', 0)" data-ingredient="Beyaz Çikolata"
+                                    class="ingredient-btn group relative p-4 rounded-2xl border-2 border-gray-200 hover:border-gray-300 text-left">
+                                <div class="font-medium text-gray-900">Beyaz Çikolata</div>
+                                <div class="text-xs text-gray-500 mt-1">Kremamsı</div>
+                                <div class="absolute top-2 right-2 w-6 h-6 bg-gray-900 rounded-full flex items-center justify-center opacity-0 check-icon">
+                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                            </button>
+
+                            <button onclick="toggleIngredient(this, 'Muz', 0)" data-ingredient="Muz"
+                                    class="ingredient-btn group relative p-4 rounded-2xl border-2 border-gray-200 hover:border-gray-300 text-left">
+                                <div class="font-medium text-gray-900">Muz</div>
+                                <div class="text-xs text-gray-500 mt-1">Taze dilimler</div>
+                                <div class="absolute top-2 right-2 w-6 h-6 bg-gray-900 rounded-full flex items-center justify-center opacity-0 check-icon">
+                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Ücretli Malzemeler -->
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Ekstra (+20 TL)</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                            <button onclick="toggleIngredient(this, 'Kivi', 20)" data-ingredient="Kivi"
+                                    class="ingredient-btn group relative p-4 rounded-2xl border-2 border-gray-200 hover:border-gray-300 text-left">
+                                <div class="flex justify-between items-start">
+                                    <div class="font-medium text-gray-900">Kivi</div>
+                                    <span class="text-xs font-semibold text-gray-900 bg-gray-100 px-2 py-1 rounded-full">+20</span>
+                                </div>
+                                <div class="text-xs text-gray-500 mt-1">Taze ve ekşi</div>
+                                <div class="absolute top-2 right-2 w-6 h-6 bg-gray-900 rounded-full flex items-center justify-center opacity-0 check-icon">
+                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                            </button>
+
+                            <button onclick="toggleIngredient(this, 'Burçak', 20)" data-ingredient="Burçak"
+                                    class="ingredient-btn group relative p-4 rounded-2xl border-2 border-gray-200 hover:border-gray-300 text-left">
+                                <div class="flex justify-between items-start">
+                                    <div class="font-medium text-gray-900">Burçak</div>
+                                    <span class="text-xs font-semibold text-gray-900 bg-gray-100 px-2 py-1 rounded-full">+20</span>
+                                </div>
+                                <div class="text-xs text-gray-500 mt-1">Kıtır bisküvi</div>
+                                <div class="absolute top-2 right-2 w-6 h-6 bg-gray-900 rounded-full flex items-center justify-center opacity-0 check-icon">
+                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                            </button>
+
+                            <button onclick="toggleIngredient(this, 'Elma', 20)" data-ingredient="Elma"
+                                    class="ingredient-btn group relative p-4 rounded-2xl border-2 border-gray-200 hover:border-gray-300 text-left">
+                                <div class="flex justify-between items-start">
+                                    <div class="font-medium text-gray-900">Elma</div>
+                                    <span class="text-xs font-semibold text-gray-900 bg-gray-100 px-2 py-1 rounded-full">+20</span>
+                                </div>
+                                <div class="text-xs text-gray-500 mt-1">Karamelize</div>
+                                <div class="absolute top-2 right-2 w-6 h-6 bg-gray-900 rounded-full flex items-center justify-center opacity-0 check-icon">
+                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                            </button>
+
+                            <button onclick="toggleIngredient(this, 'Oreo', 20)" data-ingredient="Oreo"
+                                    class="ingredient-btn group relative p-4 rounded-2xl border-2 border-gray-200 hover:border-gray-300 text-left">
+                                <div class="flex justify-between items-start">
+                                    <div class="font-medium text-gray-900">Oreo</div>
+                                    <span class="text-xs font-semibold text-gray-900 bg-gray-100 px-2 py-1 rounded-full">+20</span>
+                                </div>
+                                <div class="text-xs text-gray-500 mt-1">Parçalanmış</div>
+                                <div class="absolute top-2 right-2 w-6 h-6 bg-gray-900 rounded-full flex items-center justify-center opacity-0 check-icon">
+                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                            </button>
+
+                            <button onclick="toggleIngredient(this, 'Çilek', 20)" data-ingredient="Çilek"
+                                    class="ingredient-btn group relative p-4 rounded-2xl border-2 border-gray-200 hover:border-gray-300 text-left">
+                                <div class="flex justify-between items-start">
+                                    <div class="font-medium text-gray-900">Çilek</div>
+                                    <span class="text-xs font-semibold text-gray-900 bg-gray-100 px-2 py-1 rounded-full">+20</span>
+                                </div>
+                                <div class="text-xs text-gray-500 mt-1">Taze ve tatlı</div>
+                                <div class="absolute top-2 right-2 w-6 h-6 bg-gray-900 rounded-full flex items-center justify-center opacity-0 check-icon">
+                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                            </button>
+
+                            <button onclick="toggleIngredient(this, 'Bonibon', 20)" data-ingredient="Bonibon"
+                                    class="ingredient-btn group relative p-4 rounded-2xl border-2 border-gray-200 hover:border-gray-300 text-left">
+                                <div class="flex justify-between items-start">
+                                    <div class="font-medium text-gray-900">Bonibon</div>
+                                    <span class="text-xs font-semibold text-gray-900 bg-gray-100 px-2 py-1 rounded-full">+20</span>
+                                </div>
+                                <div class="text-xs text-gray-500 mt-1">Renkli şekerler</div>
+                                <div class="absolute top-2 right-2 w-6 h-6 bg-gray-900 rounded-full flex items-center justify-center opacity-0 check-icon">
+                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                            </button>
+
+                            <button onclick="toggleIngredient(this, 'Cicibebe', 20)" data-ingredient="Cicibebe"
+                                    class="ingredient-btn group relative p-4 rounded-2xl border-2 border-gray-200 hover:border-gray-300 text-left">
+                                <div class="flex justify-between items-start">
+                                    <div class="font-medium text-gray-900">Cicibebe</div>
+                                    <span class="text-xs font-semibold text-gray-900 bg-gray-100 px-2 py-1 rounded-full">+20</span>
+                                </div>
+                                <div class="text-xs text-gray-500 mt-1">Bebek bisküvisi</div>
+                                <div class="absolute top-2 right-2 w-6 h-6 bg-gray-900 rounded-full flex items-center justify-center opacity-0 check-icon">
+                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- İçecekler Section -->
+                <section class="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm">
+                    <h2 class="text-2xl font-bold mb-6">İçecek Seçimi</h2>
+                    <div class="flex flex-wrap gap-3">
+                        <button onclick="selectDrink(this, 'kola', 55)" class="drink-btn px-6 py-3 rounded-full border-2 border-gray-200 font-medium transition-all hover:border-gray-400">
+                            Kola (+55 TL)
+                        </button>
+                        <button onclick="selectDrink(this, 'sprite', 55)" class="drink-btn px-6 py-3 rounded-full border-2 border-gray-200 font-medium transition-all hover:border-gray-400">
+                            Sprite (+55 TL)
+                        </button>
+                        <button onclick="selectDrink(this, 'fanta', 55)" class="drink-btn px-6 py-3 rounded-full border-2 border-gray-200 font-medium transition-all hover:border-gray-400">
+                            Fanta (+55 TL)
+                        </button>
+                        <button onclick="selectDrink(this, 'su', 20)" class="drink-btn px-6 py-3 rounded-full border-2 border-gray-200 font-medium transition-all hover:border-gray-400">
+                            Su (+20 TL)
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Müşteri Bilgileri Section -->
+                <section class="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm">
+                    <h2 class="text-2xl font-bold mb-6">Teslimat Bilgileri</h2>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">İsim</label>
+                            <input type="text" id="customer-name" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-gray-900 focus:outline-none transition-colors" placeholder="Adınız">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Soyisim</label>
+                            <input type="text" id="customer-surname" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-gray-900 focus:outline-none transition-colors" placeholder="Soyadınız">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Telefon</label>
+                            <input type="tel" id="customer-phone" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-gray-900 focus:outline-none transition-colors" placeholder="05XX XXX XX XX">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Adres</label>
+                            <textarea id="customer-address" rows="3" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-gray-900 focus:outline-none transition-colors resize-none" placeholder="Sokak, apartman, daire no..."></textarea>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Ödeme Yöntemi Section -->
+                <section class="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm">
+                    <h2 class="text-2xl font-bold mb-6">Ödeme Yöntemi</h2>
+                    <div class="flex flex-wrap gap-3">
+                        <button onclick="selectPayment(this, 'nakit')" class="payment-btn active px-6 py-3 rounded-full border-2 border-gray-900 bg-gray-900 text-white font-medium transition-all">
+                            Nakit
+                        </button>
+                        <button class="payment-btn coming-soon px-6 py-3 rounded-full border-2 border-gray-200 font-medium text-gray-400" disabled>
+                            Online Ödeme (Çok Yakında)
+                        </button>
+                        <button class="payment-btn coming-soon px-6 py-3 rounded-full border-2 border-gray-200 font-medium text-gray-400" disabled>
+                            Kredi Kartı (Çok Yakında)
+                        </button>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Right Column: Order Summary -->
+            <div class="lg:col-span-1">
+                <div class="sticky top-24 bg-gray-900 text-white rounded-3xl p-8 shadow-2xl">
+                    <h2 class="text-xl font-bold mb-6">Sipariş Özeti</h2>
+                    
+                    <div class="space-y-4 mb-6 max-h-96 overflow-y-auto pr-2" id="order-list">
+                        <!-- Waffle instances will be added here -->
+                    </div>
+
+                    <div class="pt-6 border-t border-gray-700">
+                        <div class="flex justify-between items-end mb-6">
+                            <span class="text-gray-400 text-sm">Toplam</span>
+                            <span id="total-price" class="text-4xl font-bold">0 TL</span>
+                        </div>
+                        
+                        <button onclick="placeOrder()" class="w-full bg-white text-gray-900 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-colors flex items-center justify-center gap-2 group">
+                            Sipariş Ver
+                            <svg class="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                        </button>
+                        
+                        <p class="text-center text-xs text-gray-500 mt-4">
+                            Hazırlama süresi yaklaşık 10-15 dakika
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Loading Modal -->
+    <div id="loading-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center p-6">
+        <div class="bg-white rounded-3xl p-8 max-w-md w-full text-center">
+            <div class="w-16 h-16 border-4 border-gray-200 border-t-gray-900 rounded-full animate-spin mx-auto mb-4"></div>
+            <h3 class="text-xl font-bold mb-2">Siparişiniz Gönderiliyor...</h3>
+            <p class="text-gray-600">Lütfen bekleyin, WhatsApp açılıyor</p>
+        </div>
+    </div>
+
+    <script>
+        let basePrice = 350;
+        let waffleInstances = [];
+        let selectedDrinks = [];
+        let paymentMethod = 'nakit';
+        let currentIngredients = [
+            { name: 'Çikolata', price: 0 }
+        ];
+
+        const availableIngredients = [
+            { name: 'Çikolata', price: 0, type: 'free' },
+            { name: 'Beyaz Çikolata', price: 0, type: 'free' },
+            { name: 'Muz', price: 0, type: 'free' },
+            { name: 'Kivi', price: 20, type: 'paid' },
+            { name: 'Burçak', price: 20, type: 'paid' },
+            { name: 'Elma', price: 20, type: 'paid' },
+            { name: 'Oreo', price: 20, type: 'paid' },
+            { name: 'Çilek', price: 20, type: 'paid' },
+            { name: 'Bonibon', price: 20, type: 'paid' },
+            { name: 'Cicibebe', price: 20, type: 'paid' }
+        ];
+
+        function toggleIngredient(btn, name, price) {
+            const isActive = btn.classList.contains('active');
+            const checkIcon = btn.querySelector('.check-icon');
+            
+            if (isActive) {
+                if (currentIngredients.length > 1) {
+                    btn.classList.remove('active');
+                    btn.classList.remove('border-gray-900');
+                    btn.classList.add('border-gray-200');
+                    checkIcon.classList.add('opacity-0');
+                    currentIngredients = currentIngredients.filter(ing => ing.name !== name);
+                    syncLastWaffle();
+                }
+            } else {
+                btn.classList.add('active');
+                btn.classList.remove('border-gray-200');
+                btn.classList.add('border-gray-900');
+                checkIcon.classList.remove('opacity-0');
+                currentIngredients.push({ name: name, price: price });
+                syncLastWaffle();
+            }
+        }
+
+        function syncLastWaffle() {
+            // Son eklenen waffle'ı güncelle veya yeni waffle ekle
+            if (waffleInstances.length === 0) {
+                addWaffleToOrder();
+            } else {
+                // Son waffle'ı güncelle
+                const lastWaffle = waffleInstances[waffleInstances.length - 1];
+                const ingredientsTotal = currentIngredients.reduce((sum, ing) => sum + ing.price, 0);
+                lastWaffle.ingredients = [...currentIngredients];
+                lastWaffle.unitPrice = basePrice + ingredientsTotal;
+                updateSummary();
+            }
+        }
+
+        function selectDrink(btn, drink, price) {
+            document.querySelectorAll('.drink-btn').forEach(b => {
+                b.classList.remove('active');
+                b.classList.remove('border-gray-900');
+                b.classList.add('border-gray-200');
+            });
+            
+            btn.classList.add('active');
+            btn.classList.remove('border-gray-200');
+            btn.classList.add('border-gray-900');
+            
+            const existingDrink = selectedDrinks.find(d => d.name === drink);
+            if (existingDrink) {
+                existingDrink.qty++;
+            } else {
+                selectedDrinks.push({ name: drink, price: price, qty: 1 });
+            }
+            
+            updateSummary();
+        }
+
+        function addWaffleToOrder() {
+            const ingredientsTotal = currentIngredients.reduce((sum, ing) => sum + ing.price, 0);
+            const waffleTotal = basePrice + ingredientsTotal;
+            
+            waffleInstances.push({
+                id: Date.now(),
+                ingredients: [...currentIngredients],
+                qty: 1,
+                unitPrice: waffleTotal
+            });
+            
+            updateSummary();
+        }
+
+        function updateWaffleQty(id, change) {
+            const waffle = waffleInstances.find(w => w.id === id);
+            if (waffle) {
+                const newQty = waffle.qty + change;
+                if (newQty >= 1) {
+                    waffle.qty = newQty;
+                    updateSummary();
+                }
+            }
+        }
+
+        function removeWaffle(id) {
+            waffleInstances = waffleInstances.filter(w => w.id !== id);
+            updateSummary();
+        }
+
+        function removeIngredientFromWaffle(waffleId, ingredientName) {
+            const waffle = waffleInstances.find(w => w.id === waffleId);
+            if (waffle && waffle.ingredients.length > 1) {
+                const ing = waffle.ingredients.find(i => i.name === ingredientName);
+                if (ing) {
+                    waffle.ingredients = waffle.ingredients.filter(i => i.name !== ingredientName);
+                    waffle.unitPrice -= ing.price;
+                    
+                    // Eğer bu son waffle ise currentIngredients'ı da güncelle
+                    if (waffleInstances[waffleInstances.length - 1].id === waffleId) {
+                        currentIngredients = [...waffle.ingredients];
+                        updateIngredientButtons();
+                    }
+                    
+                    updateSummary();
+                }
+            }
+        }
+
+        function addIngredientToWaffle(waffleId, ingredientName) {
+            const waffle = waffleInstances.find(w => w.id === waffleId);
+            const ingredient = availableIngredients.find(i => i.name === ingredientName);
+            
+            if (waffle && ingredient) {
+                const exists = waffle.ingredients.find(i => i.name === ingredientName);
+                if (!exists) {
+                    waffle.ingredients.push({ name: ingredient.name, price: ingredient.price });
+                    waffle.unitPrice += ingredient.price;
+                    
+                    // Eğer bu son waffle ise currentIngredients'ı da güncelle
+                    if (waffleInstances[waffleInstances.length - 1].id === waffleId) {
+                        currentIngredients = [...waffle.ingredients];
+                        updateIngredientButtons();
+                    }
+                    
+                    updateSummary();
+                }
+            }
+        }
+
+        function updateIngredientButtons() {
+            // Tüm butonları sıfırla
+            document.querySelectorAll('.ingredient-btn').forEach(btn => {
+                btn.classList.remove('active');
+                btn.classList.remove('border-gray-900');
+                btn.classList.add('border-gray-200');
+                btn.querySelector('.check-icon').classList.add('opacity-0');
+            });
+            
+            // Seçili malzemeleri işaretle
+            currentIngredients.forEach(ing => {
+                const btn = document.querySelector(`[data-ingredient="${ing.name}"]`);
+                if (btn) {
+                    btn.classList.add('active');
+                    btn.classList.remove('border-gray-200');
+                    btn.classList.add('border-gray-900');
+                    btn.querySelector('.check-icon').classList.remove('opacity-0');
+                }
+            });
+        }
+
+        function updateDrinkQty(name, change) {
+            const drink = selectedDrinks.find(d => d.name === name);
+            if (drink) {
+                const newQty = drink.qty + change;
+                if (newQty >= 1) {
+                    drink.qty = newQty;
+                    updateSummary();
+                }
+            }
+        }
+
+        function removeDrink(name) {
+            selectedDrinks = selectedDrinks.filter(d => d.name !== name);
+            
+            if (selectedDrinks.length === 0) {
+                document.querySelectorAll('.drink-btn').forEach(b => {
+                    b.classList.remove('active');
+                    b.classList.remove('border-gray-900');
+                    b.classList.add('border-gray-200');
+                });
+            }
+            
+            updateSummary();
+        }
+
+        function selectPayment(btn, method) {
+            document.querySelectorAll('.payment-btn:not(.coming-soon)').forEach(b => {
+                b.classList.remove('active');
+                b.classList.remove('bg-gray-900');
+                b.classList.remove('text-white');
+                b.classList.remove('border-gray-900');
+            });
+            
+            btn.classList.add('active');
+            btn.classList.add('bg-gray-900');
+            btn.classList.add('text-white');
+            btn.classList.add('border-gray-900');
+            paymentMethod = method;
+        }
+
+        function updateSummary() {
+            const container = document.getElementById('order-list');
+            container.innerHTML = '';
+            
+            let total = 0;
+            
+            if (waffleInstances.length === 0) {
+                const addFirstWaffle = document.createElement('div');
+                addFirstWaffle.className = 'text-center py-8 border-2 border-dashed border-gray-700 rounded-2xl';
+                addFirstWaffle.innerHTML = `
+                    <p class="text-gray-400 text-sm mb-4">Henüz waffle eklemediniz</p>
+                    <button onclick="addWaffleToOrder()" class="add-btn bg-white text-gray-900 px-6 py-3 rounded-full font-semibold flex items-center gap-2 mx-auto">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        Waffle Ekle
+                    </button>
+                `;
+                container.appendChild(addFirstWaffle);
+            } else {
+                const addWaffleBtn = document.createElement('div');
+                addWaffleBtn.className = 'mb-4';
+                addWaffleBtn.innerHTML = `
+                    <button onclick="addWaffleToOrder()" class="add-btn w-full bg-gray-800 hover:bg-gray-700 text-white py-3 rounded-xl font-medium flex items-center justify-center gap-2 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        Farklı Waffle Ekle
+                    </button>
+                `;
+                container.appendChild(addWaffleBtn);
+            }
+            
+            waffleInstances.forEach((waffle, index) => {
+                const waffleEl = document.createElement('div');
+                waffleEl.className = 'waffle-instance order-item group pb-4 border-b border-gray-700';
+                
+                const lineTotal = waffle.unitPrice * waffle.qty;
+                total += lineTotal;
+                
+                let ingredientsHtml = '';
+                waffle.ingredients.forEach(ing => {
+                    ingredientsHtml += `
+                        <span class="ingredient-tag inline-flex items-center gap-1 bg-gray-800 px-2 py-1 rounded-lg text-xs text-gray-300 mb-1 mr-1">
+                            ${ing.name}
+                            ${waffle.ingredients.length > 1 ? `
+                                <button onclick="removeIngredientFromWaffle(${waffle.id}, '${ing.name}')" class="remove-ing-btn text-red-400 hover:text-red-300 ml-1">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                </button>
+                            ` : ''}
+                        </span>
+                    `;
+                });
+
+                const availableToAdd = availableIngredients.filter(ai => 
+                    !waffle.ingredients.find(wi => wi.name === ai.name)
+                );
+                
+                let addIngredientDropdown = '';
+                if (availableToAdd.length > 0) {
+                    addIngredientDropdown = `
+                        <div class="mt-2 relative group/add">
+                            <button class="add-ing-btn inline-flex items-center gap-1 bg-gray-800 hover:bg-gray-700 px-2 py-1 rounded-lg text-xs text-gray-300 transition-colors">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                Malzeme Ekle
+                            </button>
+                            <div class="hidden group-hover/add:block absolute left-0 top-full mt-1 bg-gray-800 rounded-lg shadow-xl border border-gray-700 z-10 min-w-[140px]">
+                                ${availableToAdd.map(ing => `
+                                    <button onclick="addIngredientToWaffle(${waffle.id}, '${ing.name}')" class="w-full text-left px-3 py-2 text-xs text-gray-300 hover:bg-gray-700 first:rounded-t-lg last:rounded-b-lg flex justify-between items-center">
+                                        <span>${ing.name}</span>
+                                        <span class="text-gray-500">${ing.price === 0 ? 'Ücretsiz' : '+20'}</span>
+                                    </button>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                waffleEl.innerHTML = `
+                    <div class="flex items-start justify-between mb-2">
+                        <div class="flex-1">
+                            <div class="text-white font-semibold text-sm">Waffle #${index + 1}</div>
+                            <div class="text-gray-500 text-xs mt-1">${waffle.unitPrice} TL/adet</div>
+                        </div>
+                        <div class="flex items-center gap-2 ml-2">
+                            <button onclick="updateWaffleQty(${waffle.id}, -1)" class="qty-btn w-7 h-7 rounded-full bg-gray-800 flex items-center justify-center text-white hover:bg-gray-700">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
+                            </button>
+                            <span class="font-semibold w-5 text-center text-sm">${waffle.qty}</span>
+                            <button onclick="updateWaffleQty(${waffle.id}, 1)" class="qty-btn w-7 h-7 rounded-full bg-gray-800 flex items-center justify-center text-white hover:bg-gray-700">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                            </button>
+                            <button onclick="removeWaffle(${waffle.id})" class="delete-btn ml-1 text-red-400 hover:text-red-300 p-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap mb-2">
+                        ${ingredientsHtml}
+                    </div>
+                    ${addIngredientDropdown}
+                    <div class="text-right text-sm font-medium text-white mt-2">${lineTotal} TL</div>
+                `;
+                container.appendChild(waffleEl);
+            });
+            
+            if (selectedDrinks.length > 0) {
+                const drinksHeader = document.createElement('div');
+                drinksHeader.className = 'pt-2 border-t border-gray-700';
+                drinksHeader.innerHTML = `<div class="text-gray-400 text-xs uppercase tracking-wider mb-3">İçecekler</div>`;
+                container.appendChild(drinksHeader);
+                
+                selectedDrinks.forEach(drink => {
+                    const drinkEl = document.createElement('div');
+                    drinkEl.className = 'order-item group flex items-center justify-between py-2';
+                    const lineTotal = drink.price * drink.qty;
+                    total += lineTotal;
+                    
+                    drinkEl.innerHTML = `
+                        <div class="flex-1">
+                            <div class="text-gray-300 text-sm capitalize">${drink.name}</div>
+                            <div class="text-gray-500 text-xs">${drink.price} TL/adet</div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="updateDrinkQty('${drink.name}', -1)" class="qty-btn w-7 h-7 rounded-full bg-gray-800 flex items-center justify-center text-white hover:bg-gray-700">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
+                            </button>
+                            <span class="font-semibold w-5 text-center text-sm">${drink.qty}</span>
+                            <button onclick="updateDrinkQty('${drink.name}', 1)" class="qty-btn w-7 h-7 rounded-full bg-gray-800 flex items-center justify-center text-white hover:bg-gray-700">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                            </button>
+                            <button onclick="removeDrink('${drink.name}')" class="delete-btn ml-1 text-red-400 hover:text-red-300 p-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            </button>
+                        </div>
+                    `;
+                    container.appendChild(drinkEl);
+                    
+                    const drinkTotal = document.createElement('div');
+                    drinkTotal.className = 'text-right text-sm font-medium text-white -mt-1 mb-2';
+                    drinkTotal.textContent = `${lineTotal} TL`;
+                    container.appendChild(drinkTotal);
+                });
+            }
+            
+            if (selectedDrinks.length === 0) {
+                const addDrinkHint = document.createElement('div');
+                addDrinkHint.className = 'text-center py-4 border-2 border-dashed border-gray-700 rounded-2xl mt-4';
+                addDrinkHint.innerHTML = `<p class="text-gray-500 text-xs">İçecek seçmek için yukarıdaki seçeneklere tıklayın</p>`;
+                container.appendChild(addDrinkHint);
+            }
+            
+            const priceElement = document.getElementById('total-price');
+            priceElement.textContent = total + ' TL';
+        }
+
+        function placeOrder() {
+            if (waffleInstances.length === 0) {
+                alert('Lütfen en az bir waffle ekleyin.');
+                return;
+            }
+
+            const name = document.getElementById('customer-name').value;
+            const surname = document.getElementById('customer-surname').value;
+            const phone = document.getElementById('customer-phone').value;
+            const address = document.getElementById('customer-address').value;
+
+            if (!name || !surname || !phone || !address) {
+                alert('Lütfen tüm teslimat bilgilerini doldurun.');
+                return;
+            }
+
+            let total = 0;
+            let message = `*YENİ SİPARİŞ - BERRY PATISSERIE*%0A%0A`;
+            message += `*Müşteri Bilgileri:*%0A`;
+            message += `İsim: ${name} ${surname}%0A`;
+            message += `Telefon: ${phone}%0A`;
+            message += `Adres: ${address}%0A%0A`;
+            message += `*Sipariş Detayları:*%0A%0A`;
+            
+            message += `*Waffle'lar:*%0A`;
+            waffleInstances.forEach((waffle, index) => {
+                const ingredientsList = waffle.ingredients.map(ing => ing.name).join(', ');
+                const lineTotal = waffle.unitPrice * waffle.qty;
+                total += lineTotal;
+                message += `${index + 1}. Waffle (${waffle.qty} adet)%0A`;
+                message += `   Malzemeler: ${ingredientsList}%0A`;
+                message += `   Birim: ${waffle.unitPrice} TL | Toplam: ${lineTotal} TL%0A%0A`;
+            });
+            
+            if (selectedDrinks.length > 0) {
+                message += `*İçecekler:*%0A`;
+                selectedDrinks.forEach(drink => {
+                    const lineTotal = drink.price * drink.qty;
+                    total += lineTotal;
+                    message += `${drink.name.charAt(0).toUpperCase() + drink.name.slice(1)} (${drink.qty} adet) - ${lineTotal} TL%0A`;
+                });
+                message += `%0A`;
+            }
+            
+            message += `*Ödeme:* ${paymentMethod.toUpperCase()}%0A`;
+            message += `*Genel Toplam:* ${total} TL`;
+
+            const whatsappUrl = `https://wa.me/905364912683?text=${message}`;
+            
+            document.getElementById('loading-modal').classList.remove('hidden');
+            document.getElementById('loading-modal').classList.add('flex');
+            
+            setTimeout(() => {
+                window.location.href = whatsappUrl;
+            }, 1000);
+        }
+
+        // İlk waffle'ı otomatik ekle
+        addWaffleToOrder();
+    </script>
+</body>
+</html>
